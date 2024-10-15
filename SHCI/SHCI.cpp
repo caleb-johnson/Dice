@@ -291,7 +291,7 @@ int main(int argc, char* argv[]) {
     std::ifstream input( "AlphaDets.bin", std::ios::binary );
     // copies all data into buffer
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-    int nAlphaDets = static_cast<int>(buffer.size()/16);
+    int nAlphaDets = static_cast<int>(buffer.size()/5);
     cout << nAlphaDets <<endl;
     int nalpha = nelec/2; 
     vector<vector<int>> occAlpha(nAlphaDets, vector<int>(nalpha,-1)); 
@@ -299,8 +299,8 @@ int main(int argc, char* argv[]) {
     for (int i=0; i<nAlphaDets; i++) {
 
       int occindex = 0;
-      for (int c=0; c<16; c++) {
-        unsigned char a = buffer[16*i+(4-c)];
+      for (int c=0; c<5; c++) {
+        unsigned char a = buffer[5*i+(4-c)];
         //cout << ((int)(a))<<endl;
         for (int b=0; b<8; b++) {
           //cout << ((a>>b & 1) != 0)<<" ";
