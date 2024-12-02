@@ -288,15 +288,15 @@ int main(int argc, char* argv[]) {
 
   /**READING THE ALPHA STRING FROM THE BINARY FILE*/
   if (true) {
-    std::ifstream input( "AlphaDets.bin", std::ios::binary );
+    std::ifstream input_a( "AlphaDets.bin", std::ios::binary );
     // copies all data into buffer
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-    int nAlphaDets = static_cast<int>(buffer.size()/5);
+    std::vector<unsigned char> buffer_a(std::istreambuf_iterator<char>(input_a), {});
+    int nAlphaDets = static_cast<int>(buffer_a.size()/5);
     cout << nAlphaDets <<endl;
     // Count number of alpha electrons in first determinant
     int nalpha = 0;
     for (int c=0; c<5; c++) {
-      unsigned char a = buffer[4-c];
+      unsigned char a = buffer_a[4-c];
       for (int b=0; b<8; b++) {
         if ((a>>b & 1) != 0) {
           nalpha++;
@@ -308,7 +308,7 @@ int main(int argc, char* argv[]) {
     for (int i=0; i<nAlphaDets; i++) {
       int occindex = 0;
       for (int c=0; c<5; c++) {
-        unsigned char a = buffer[5*i+(4-c)];
+        unsigned char a = buffer_a[5*i+(4-c)];
         for (int b=0; b<8; b++) {
           if ((a>>b & 1) != 0) {
             occAlpha[i][occindex] = c*8+b;
@@ -322,17 +322,16 @@ int main(int argc, char* argv[]) {
         exit(0);
       }
     }
-  /**READING THE BETA STRING FROM THE BINARY FILE*/
-  if (true) {
-    std::ifstream input( "BetaDets.bin", std::ios::binary );
+    /**READING THE BETA STRING FROM THE BINARY FILE*/
+    std::ifstream input_b( "BetaDets.bin", std::ios::binary );
     // copies all data into buffer
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-    int nBetaDets = static_cast<int>(buffer.size()/5);
+    std::vector<unsigned char> buffer_b(std::istreambuf_iterator<char>(input_b), {});
+    int nBetaDets = static_cast<int>(buffer_b.size()/5);
     cout << nBetaDets <<endl;
     // Count number of beta electrons in first determinant
     int nbeta = 0;
     for (int c=0; c<5; c++) {
-      unsigned char a = buffer[4-c];
+      unsigned char a = buffer_b[4-c];
       for (int b=0; b<8; b++) {
         if ((a>>b & 1) != 0) {
           nbeta++;
@@ -344,7 +343,7 @@ int main(int argc, char* argv[]) {
     for (int i=0; i<nBetaDets; i++) {
       int occindex = 0;
       for (int c=0; c<5; c++) {
-        unsigned char a = buffer[5*i+(4-c)];
+        unsigned char a = buffer_b[5*i+(4-c)];
         for (int b=0; b<8; b++) {
           if ((a>>b & 1) != 0) {
             occBeta[i][occindex] = c*8+b;
@@ -375,11 +374,10 @@ int main(int argc, char* argv[]) {
         //     << format("%18.10f") % (E) << endl;
         if (E < lowestEnergy) {
           lowestEnergy = E;
-          lowestEnergyDet = i*nAlphaDets+j;
+          lowestEnergyDet = i*nBetaDets+j;
         }
       }
     }
-
   }
 
   HFoccupied.resize(1);
