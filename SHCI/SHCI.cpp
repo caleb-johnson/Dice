@@ -318,7 +318,7 @@ int main(int argc, char* argv[]) {
       }
 
       if (occindex != nalpha) {
-        cout << "not enough 1 bits (alpha)"<<nalpha<<"  "<<occindex<<endl;
+        cout << "not enough 1 bits (alpha) "<<nalpha<<"  "<<occindex<<endl;
         exit(0);
       }
     }
@@ -353,7 +353,7 @@ int main(int argc, char* argv[]) {
       }
 
       if (occindex != nbeta) {
-        cout << "not enough 1 bits (beta)"<<nbeta<<"  "<<occindex<<endl;
+        cout << "not enough 1 bits (beta) "<<nbeta<<"  "<<occindex<<endl;
         exit(0);
       }
     }
