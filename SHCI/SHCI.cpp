@@ -288,47 +288,87 @@ int main(int argc, char* argv[]) {
 
   /**READING THE ALPHA STRING FROM THE BINARY FILE*/
   if (true) {
-    std::ifstream input( "AlphaDets.bin", std::ios::binary );
-    // copies all data into buffer
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-    int nAlphaDets = static_cast<int>(buffer.size()/16);
-    cout << nAlphaDets <<endl;
-    int nalpha = nelec/2;
+    std::ifstream input_a( "AlphaDets.bin", std::ios::binary );
     int detsize = 16;
+    // copies all data into buffer
+    std::vector<unsigned char> buffer_a(std::istreambuf_iterator<char>(input_a), {});
+    int nAlphaDets = static_cast<int>(buffer_a.size()/detsize);
+    cout << nAlphaDets <<endl;
+    // Count number of alpha electrons in first determinant
+    int nalpha = 0;
+    for (int c=0; c<detsize; c++) {
+      unsigned char a = buffer_a[(detsize-1)-c];
+      for (int b=0; b<8; b++) {
+        if ((a>>b & 1) != 0) {
+          nalpha++;
+        }
+      }
+    }
     vector<vector<int>> occAlpha(nAlphaDets, vector<int>(nalpha,-1)); 
 
     for (int i=0; i<nAlphaDets; i++) {
-
       int occindex = 0;
       for (int c=0; c<detsize; c++) {
-        unsigned char a = buffer[detsize*i+((detsize-1)-c)];
+        unsigned char a = buffer_a[detsize*i+((detsize-1)-c)];
         //cout << ((int)(a))<<endl;
         for (int b=0; b<8; b++) {
-          //cout << ((a>>b & 1) != 0)<<" ";
           if ((a>>b & 1) != 0) {
             occAlpha[i][occindex] = c*8+b;
             occindex++;
           }
         }
-        //cout << endl;
       }
 
       if (occindex != nalpha) {
-        cout << "not enough 1 bits "<<nalpha<<"  "<<occindex<<endl;
+        cout << "not enough 1 bits (alpha) "<<nalpha<<"  "<<occindex<<endl;
         exit(0);
       }
+    }
+    /**READING THE BETA STRING FROM THE BINARY FILE*/
+    std::ifstream input_b( "BetaDets.bin", std::ios::binary );
+    // copies all data into buffer
+    std::vector<unsigned char> buffer_b(std::istreambuf_iterator<char>(input_b), {});
+    int nBetaDets = static_cast<int>(buffer_b.size()/detsize);
+    cout << nBetaDets <<endl;
+    // Count number of beta electrons in first determinant
+    int nbeta = 0;
+    for (int c=0; c<detsize; c++) {
+      unsigned char a = buffer_b[(detsize-1)-c];
+      for (int b=0; b<8; b++) {
+        if ((a>>b & 1) != 0) {
+          nbeta++;
+        }
+      }
+    }
+    vector<vector<int>> occBeta(nBetaDets, vector<int>(nbeta,-1)); 
 
+    for (int i=0; i<nBetaDets; i++) {
+      int occindex = 0;
+      for (int c=0; c<detsize; c++) {
+        unsigned char a = buffer_b[detsize*i+((detsize-1)-c)];
+        for (int b=0; b<8; b++) {
+          if ((a>>b & 1) != 0) {
+            occBeta[i][occindex] = c*8+b;
+            occindex++;
+          }
+        }
+      }
+
+      if (occindex != nbeta) {
+        cout << "not enough 1 bits (beta) "<<nbeta<<"  "<<occindex<<endl;
+        exit(0);
+      }
     }
 
     // Make HF determinant
-    Dets.resize(nAlphaDets*nAlphaDets);
+    Dets.resize(nAlphaDets*nBetaDets);
     for (int i=0; i<nAlphaDets; i++) {
-      for (int j=0; j<nAlphaDets; j++) {
-        Determinant& d = Dets[i*nAlphaDets+j];
-        for (int a=0; a<nalpha; a++) 
+      for (int j=0; j<nBetaDets; j++) {
+        Determinant& d = Dets[i*nBetaDets+j];
+        for (int a=0; a<nalpha; a++)
           d.setocc(occAlpha[i][a]*2, true);
-        for (int a=0; a<nalpha; a++) 
-          d.setocc(occAlpha[j][a]*2+1, true);
+        for (int a=0; a<nbeta; a++) 
+          d.setocc(occBeta[j][a]*2+1, true);
 
 
         double E = d.Energy(I1, I2, coreE);
@@ -336,43 +376,10 @@ int main(int argc, char* argv[]) {
         //     << format("%18.10f") % (E) << endl;
         if (E < lowestEnergy) {
           lowestEnergy = E;
-          lowestEnergyDet = i*nAlphaDets+j;
+          lowestEnergyDet = i*nBetaDets+j;
         }
       }
     }
-
-  }
-  else {
-    Dets.resize(HFoccupied.size());
-    for (int d = 0; d < HFoccupied.size(); d++) {
-      for (int i = 0; i < HFoccupied[d].size(); i++) {
-        //if (Dets[d].getocc(HFoccupied[d][i])) {
-        //  pout << "orbital " << HFoccupied[d][i]
-        //       << " appears twice in input determinant number " << d << endl;
-        //  exit(0);
-        //}
-        Dets[d].setocc(HFoccupied[d][i], true);
-      }
-      if (Determinant::Trev != 0) Dets[d].makeStandard();
-
-      /*      
-      for (int i = 0; i < d; i++) {
-        if (Dets[d] == Dets[i]) {
-          pout << "Determinant " << Dets[d]
-              << " appears twice in the input determinant list." << endl;
-          exit(0);
-        }
-      }
-      */
-      double E = Dets.at(d).Energy(I1, I2, coreE);
-      //pout << Dets[d] << " Given Ref. Energy:    "
-      //     << format("%18.10f") % (E) << endl;
-      if (E < lowestEnergy) {
-        lowestEnergy = E;
-        lowestEnergyDet = d;
-      }
-    }
-
   }
 
   HFoccupied.resize(1);
