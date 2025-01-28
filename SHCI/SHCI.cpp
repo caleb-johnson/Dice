@@ -28,6 +28,7 @@
 #include <list>
 #include <set>
 #include <tuple>
+#include <cmath>
 
 #include "Davidson.h"
 #include "Determinants.h"
