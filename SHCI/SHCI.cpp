@@ -290,7 +290,7 @@ int main(int argc, char* argv[]) {
   /**READING THE ALPHA STRING FROM THE BINARY FILE*/
   if (true) {
     std::ifstream input_a( "AlphaDets.bin", std::ios::binary );
-    int detsize = std::ceil((norb + 7) / 8);
+    int detsize = std::ceil((norbs + 7) / 8);
     // copies all data into buffer
     std::vector<unsigned char> buffer_a(std::istreambuf_iterator<char>(input_a), {});
     int nAlphaDets = static_cast<int>(buffer_a.size()/detsize);
