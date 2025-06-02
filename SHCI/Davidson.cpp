@@ -334,14 +334,41 @@ vector<double> davidson(Hmult2& H, vector<MatrixXx>& x0, MatrixXx& diag, int max
         precondition(r,diag,ei);
         for (int i=0; i<bsize; i++)
           r = r - (b.col(i).adjoint()*r)(0,0)*b.col(i)/(b.col(i).adjoint()*b.col(i));
-
-        if (bsize < maxCopies) {
-          b.col(bsize) = r/r.norm();
-          bsize++;
+        if (r.norm() < 1e-10) {
+            // if preconditioned r is in the subspace
+            // try adding random vectors
+            bool success = false;
+            for (int attempt = 0; attempt < 3 && !success; attempt++) {
+                r.setRandom();
+                for (int i = 0; i < bsize; i++)
+                    r = r - (b.col(i).adjoint() * r)(0, 0) * b.col(i) /
+                                (b.col(i).adjoint() * b.col(i));
+                if (r.norm() > 1e-10) success = true;
+            }
+            if (success) {
+                if (bsize < maxCopies) {
+                    b.col(bsize) = r / r.norm();
+                    bsize++; 
+                } else {
+                    bsize = nroots + 3;
+                    sigmaSize = nroots + 2;
+                    b.col(bsize - 1) = r / r.norm();
+                }
+            } else {
+                cout << "BREAKDOWN at iteration " << numIter
+                     << ", convergedRoot=" << convergedRoot << ", bsize=" << bsize
+                     << ", r.norm()=" << r.norm() << endl;
+                exit(0);
+            }
         } else {
-          bsize = nroots+3;
-          sigmaSize = nroots+2;
-          b.col(bsize-1) = r/r.norm();
+            if (bsize < maxCopies) {
+              b.col(bsize) = r/r.norm();
+              bsize++;
+            } else {
+              bsize = nroots+3;
+              sigmaSize = nroots+2;
+              b.col(bsize-1) = r/r.norm();
+            }
         }
       } // commrank=0
   } // while
