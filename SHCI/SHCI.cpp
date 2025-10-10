@@ -360,26 +360,64 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    // Condition checking only if nonsymmetric determinants
+    if (nAlphaDets != nBetaDets && schd.alpha_beta_cartesian_product == false){
+      cout << "Number of alpha dets not equal to beta dets ("<<nAlphaDets<<") and ("<< nBetaDets <<")"<<endl;
+        exit(0);
+    }
+
     // Make HF determinant
-    Dets.resize(nAlphaDets*nBetaDets);
-    for (int i=0; i<nAlphaDets; i++) {
+    if (schd.alpha_beta_cartesian_product == true){
+      cout<< endl;
+      cout << "Running diagonalization with Cartesian product symmetrization" << endl; 
+      cout << "Subspace dimension: " << nAlphaDets * nBetaDets << endl; 
+      cout<< endl;
+      Dets.resize(nAlphaDets * nBetaDets);
+      for (int i=0; i<nAlphaDets; i++) {
       for (int j=0; j<nBetaDets; j++) {
-        Determinant& d = Dets[i*nBetaDets+j];
-        for (int a=0; a<nalpha; a++)
-          d.setocc(occAlpha[i][a]*2, true);
-        for (int a=0; a<nbeta; a++) 
-          d.setocc(occBeta[j][a]*2+1, true);
+          Determinant& d = Dets[i*nBetaDets+j];
+          for (int a=0; a<nalpha; a++)
+            d.setocc(occAlpha[i][a]*2, true);
+          for (int a=0; a<nbeta; a++) 
+            d.setocc(occBeta[j][a]*2+1, true);
 
 
-        double E = d.Energy(I1, I2, coreE);
-        //pout << d << " Given Ref. Energy:    "
-        //     << format("%18.10f") % (E) << endl;
-        if (E < lowestEnergy) {
-          lowestEnergy = E;
-          lowestEnergyDet = i*nBetaDets+j;
+          double E = d.Energy(I1, I2, coreE);
+          //pout << d << " Given Ref. Energy:    "
+          //     << format("%18.10f") % (E) << endl;
+          if (E < lowestEnergy) {
+            lowestEnergy = E;
+            lowestEnergyDet = i*nBetaDets+j;
+          }
         }
       }
     }
+
+    if (schd.alpha_beta_cartesian_product == false){
+      cout<< endl;
+      cout << "Running diagonalization WITHOUT Cartesian product symmetrization" << endl; 
+      cout << "Subspace dimension: " << nAlphaDets << endl; 
+      cout<< endl;
+      // Make HF determinant
+      Dets.resize(nAlphaDets);
+      for (int i=0; i<nAlphaDets; i++) {
+          Determinant& d = Dets[i];
+          for (int a=0; a<nalpha; a++)
+            d.setocc(occAlpha[i][a]*2, true);
+          for (int a=0; a<nbeta; a++) 
+            d.setocc(occBeta[i][a]*2+1, true);
+
+          double E = d.Energy(I1, I2, coreE);
+          //pout << d << " Given Ref. Energy:    "
+          //     << format("%18.10f") % (E) << endl;
+          if (E < lowestEnergy) {
+            lowestEnergy = E;
+            lowestEnergyDet = i;
+          }
+
+      }
+    }
+
   }
 
   HFoccupied.resize(1);

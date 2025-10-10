@@ -121,6 +121,7 @@ void readInput(string input, std::vector<std::vector<int> >& occupied,
   schd.sampleNewDets = false;
   schd.precondition = false;
   schd.cdfciTol = 1e-12;
+  schd.alpha_beta_cartesian_product = false;
 
   schd.Bvalue = 0;
   schd.Bdirection.resize(0);
@@ -176,6 +177,8 @@ void readInput(string input, std::vector<std::vector<int> >& occupied,
       schd.ncore = atoi(tok[1].c_str());
     else if (boost::iequals(ArgName, "noio"))
       schd.io = false;
+    else if (boost::iequals(ArgName, "alpha_beta_cartesian_product"))
+      schd.alpha_beta_cartesian_product = true;
     else if (boost::iequals(ArgName, "dolcc"))
       schd.doLCC = true;
     else if (boost::iequals(ArgName, "io"))
