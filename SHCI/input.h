@@ -108,11 +108,13 @@ struct schedule {
     & cdfci_on                                \
     & cdfciIter                               \
     & z_threshold                             \
+    & alpha_beta_cartesian_product            \
     & max_determinants;
   }
   // clang-format on
 
  public:
+  bool alpha_beta_cartesian_product;
   double davidsonTol;
   double davidsonTolLoose;
   rdmType RdmType;
